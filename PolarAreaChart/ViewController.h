@@ -7,7 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PolarChartView.h"
 
 @interface ViewController : UIViewController
+{
+    PolarChartView *polarChartView;
+}
+
+@property int numberOfSlices;
+@property NSMutableArray *inputData;
 
 @end

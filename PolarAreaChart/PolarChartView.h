@@ -10,4 +10,10 @@
 
 @interface PolarChartView : UIView
 
+
+@property NSMutableArray *inputData;
+@property int numberOfSlices;
+@property CGPoint viewCenter;
+
+
 @end

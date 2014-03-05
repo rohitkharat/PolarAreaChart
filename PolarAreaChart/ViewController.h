@@ -14,7 +14,5 @@
     PolarChartView *polarChartView;
 }
 
-@property int numberOfSlices;
-@property NSMutableArray *inputData;
 
 @end

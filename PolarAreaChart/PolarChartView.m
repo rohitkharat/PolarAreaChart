@@ -52,6 +52,8 @@
 
 -(void)drawPolarChart:(NSMutableArray*)inputArray
 {
+
+    
     self.numberOfSlices = [inputArray count];
     
     float redColor = 0.1;
@@ -72,7 +74,6 @@
         greenColor+=0.2;
         i++;
     }
-    
 }
 
 -(void)loadData
@@ -94,22 +95,19 @@
 
 -(void)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle withColor:(UIColor *)color
 {
-    UIBezierPath *arc = [UIBezierPath bezierPath]; //empty path
-    [arc setLineWidth:0.5];
-    [arc moveToPoint:self.viewCenter];
+    UIBezierPath *sliceArc = [UIBezierPath bezierPath]; //empty path
+    [sliceArc setLineWidth:0.5];
+    //CGPoint offsetFromCenter = CGPointMake(self.viewCenter.x + 10* cos(startAngle), self.viewCenter.y + 10* sin(startAngle));
+    [sliceArc moveToPoint:self.viewCenter];
     CGPoint next;
     next.x = self.viewCenter.x + radius * cos(startAngle);
     next.y = self.viewCenter.y + radius * sin(startAngle);
-    [arc addLineToPoint:next]; //go one end of arc
-    
-    [arc addArcWithCenter:self.viewCenter radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES]; //add the arc
-    [arc addLineToPoint:self.viewCenter]; //back to center
-    
+    [sliceArc addLineToPoint:next];
+    [sliceArc addArcWithCenter:self.viewCenter radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
+    [sliceArc addLineToPoint:self.viewCenter];
     [color set];
-    [arc fill];
-//    [strokeColor set];
-    [arc stroke];
-
+    [sliceArc fill];
+    [sliceArc stroke];
 }
 
 

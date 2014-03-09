@@ -20,6 +20,7 @@
         
         self.inputData = [[NSMutableArray alloc]init];
         [self loadData];
+        closePathFlag = 0;
     }
     return self;
 }
@@ -69,11 +70,33 @@
         startAngle = i * sliceAngle;
         endAngle = (i+1)*sliceAngle;
     
-        [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.6]];
+        CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.6]];
+        CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.6]];
+
         redColor+=0.3;
         greenColor+=0.2;
         i++;
+        
+        
+        CAShapeLayer *slice = [CAShapeLayer layer];
+        slice.fillColor = [UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.7].CGColor;
+        slice.strokeColor = [UIColor blackColor].CGColor;
+        slice.lineWidth = 0.0;
+        slice.path = fromPath;
+        
+        [self.layer addSublayer:slice];
+        
+        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"path"];
+        animation.duration = 0.5;
+        
+        animation.fromValue = (__bridge id)fromPath;
+        animation.toValue = (__bridge id)toPath;
+        animation.removedOnCompletion = NO;
+        animation.fillMode = kCAFillModeForwards;
+        
+        [slice addAnimation:animation forKey:nil];
     }
+    
 }
 
 -(void)loadData
@@ -93,7 +116,7 @@
     self.numberOfSlices = [self.inputData count];
 }
 
--(void)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle withColor:(UIColor *)color
+-(CGPathRef)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle withColor:(UIColor *)color
 {
     UIBezierPath *sliceArc = [UIBezierPath bezierPath]; //empty path
     [sliceArc setLineWidth:0.5];
@@ -104,10 +127,24 @@
     next.y = self.viewCenter.y + radius * sin(startAngle);
     [sliceArc addLineToPoint:next];
     [sliceArc addArcWithCenter:self.viewCenter radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
-    [sliceArc addLineToPoint:self.viewCenter];
-    [color set];
-    [sliceArc fill];
-    [sliceArc stroke];
+//    if (closePathFlag == 0)
+//    {
+//        closePathFlag = 1;
+//        NSLog(@"not closing path");
+//
+//    }
+//    else
+//    {
+//        closePathFlag = 0;
+//        [sliceArc closePath];
+//        NSLog(@"closing path");
+//    }
+//    [color set];
+//    [sliceArc fill];
+//    [sliceArc stroke];
+    
+    return sliceArc.CGPath;
+
 }
 
 

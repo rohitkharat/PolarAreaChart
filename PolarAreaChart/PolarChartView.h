@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface PolarChartView : UIView
-
+{
+    int closePathFlag;
+}
 
 @property NSMutableArray *inputData;
 @property int numberOfSlices;

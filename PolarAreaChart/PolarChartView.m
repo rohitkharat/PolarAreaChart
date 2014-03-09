@@ -77,7 +77,9 @@
         greenColor+=0.2;
         i++;
         
-        
+        //------------------------------------------
+        //Animation of each slice
+
         CAShapeLayer *slice = [CAShapeLayer layer];
         slice.fillColor = [UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.7].CGColor;
         slice.strokeColor = [UIColor blackColor].CGColor;
@@ -95,6 +97,31 @@
         animation.fillMode = kCAFillModeForwards;
         
         [slice addAnimation:animation forKey:nil];
+        //------------------------------------------
+        
+        //------------------------------------------
+        //Rotation of each slice
+
+        float degreesVariance = 90;
+        int rads = [@(M_PI/2) intValue];
+        CATransform3D zRotation;
+        zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
+        CABasicAnimation *animateZRotation;
+        animateZRotation = [CABasicAnimation animationWithKeyPath:@"transform"];
+        animateZRotation.toValue = [NSValue valueWithCATransform3D:zRotation];
+        animateZRotation.duration = 2.0;
+        animateZRotation.fillMode = kCAFillModeForwards;
+        //[self.layer addAnimation:animateZRotation forKey:nil];
+        //------------------------------------------
+        
+        //adding animations into a group.
+        CAAnimationGroup* group = [CAAnimationGroup animation];
+        [group setDuration: 2.0];  //Set the duration of the group to the time for all animations
+        group.removedOnCompletion = FALSE;
+        group.fillMode = kCAFillModeForwards;
+        [group setAnimations: [NSArray arrayWithObjects: animation, animateZRotation, nil]];
+        [self.layer addAnimation: group forKey:  nil];
+
     }
     
 }

@@ -11,10 +11,10 @@
 #define kSATURATION 0.5
 #define kBRIGHTNESS 0.75
 #define kALPHA 0.7
-#define kAnimationDuration 1.0
+#define kAnimationDuration 0.7
 
 @implementation PolarChartView
-@synthesize numberOfSlices, inputData, viewCenter;
+@synthesize numberOfSlices, inputData, viewCenter, normalizedData;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -24,6 +24,7 @@
         self.backgroundColor = [UIColor clearColor];
         
         self.inputData = [[NSMutableArray alloc]init];
+        self.normalizedData = [[NSMutableArray alloc]init];
         [self loadData];
         closePathFlag = 0;
     }
@@ -39,7 +40,7 @@
     // NSLog(@"center = %f, %f", self.frame.size.width/2, self.frame.size.height/2);
 
      [self drawConcentricCircles];
-     [self drawPolarChart:inputData];
+     [self drawPolarChart:self.normalizedData];
      
  }
 
@@ -62,18 +63,16 @@
     CALayer *chartLayer = [CALayer layer];
     self.numberOfSlices = [inputArray count];
     
-//    float redColor = 0.1;
-//    float greenColor = 0.3;
-//    float blueColor = 0.6;
     int index = 0;
     float sliceAngle = 2*3.142/self.numberOfSlices;
-    float startAngle, endAngle = 0.0;
+    float startAngle = (3.142) - sliceAngle;
+    float endAngle = 0.0;
     float gap = 0.1;
     
     for (NSNumber *radius in inputArray)
     {
-        startAngle = index * sliceAngle;
-        endAngle = (index+1)*sliceAngle;
+        startAngle = ((index-1) * sliceAngle);
+        endAngle = index*sliceAngle;
     
         CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
         CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
@@ -102,37 +101,6 @@
         [slice addAnimation:sliceAnimation forKey:nil];
         //------------------------------------------
         
-        //----
-//        NSNumber *rotationAtStart = [myLayer valueForKeyPath:@"transform.rotation"];
-//        CATransform3D myRotationTransform = CATransform3DRotate(myLayer.transform, myRotationAngle, 0.0, 0.0, 1.0);
-//        myLayer.transform = myRotationTransform;
-//        CABasicAnimation *myAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
-//        myAnimation.duration = kMyAnimationDuration;
-//        myAnimation.fromValue = rotationAtStart;
-//        myAnimation.toValue = [NSNumber numberWithFloat:([rotationAtStart floatValue] + myRotationAngle)];
-//        [myLayer addAnimation:myAnimation forKey:@"transform.rotation"];
-        //----
-        
-        //------------------------------------------
-//        //Rotation of each slice
-//        int rads = [@(M_PI/2) intValue];
-//        CATransform3D zRotation;
-//        zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
-//        CABasicAnimation *rotationAnimation;
-//        rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-//        rotationAnimation.toValue = [NSValue valueWithCATransform3D:zRotation];
-//        rotationAnimation.duration = 5.5;
-//        rotationAnimation.fillMode = kCAFillModeForwards;
-//        [chartLayer addAnimation:rotationAnimation forKey:nil];
-        //------------------------------------------
-        
-        //adding animations into a group.
-//        CAAnimationGroup* group = [CAAnimationGroup animation];
-//        [group setDuration: 5.0];  //Set the duration of the group to the time for all animations
-//        group.removedOnCompletion = FALSE;
-//        group.fillMode = kCAFillModeForwards;
-//        [group setAnimations: [NSArray arrayWithObjects: sliceAnimation, rotationAnimation, nil]];
-//        [slice addAnimation: group forKey:  nil];
     }
 
     //[chartLayer setFrame:CGRectMake(self.viewCenter.x, self.viewCenter.y, 10 , 10)];
@@ -145,20 +113,9 @@
 
    // chartLayer.anchorPoint = CGPointMake(1.0, 0.0);
 
-    //Rotation of polar area chart
-//    int rads = [@(M_PI/2) intValue];
-//    CATransform3D zRotation;
-//    zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
-//    CABasicAnimation *rotationAnimation;
-//    rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-//    rotationAnimation.toValue = [NSValue valueWithCATransform3D:zRotation];
-//    rotationAnimation.duration = 2;
-//    rotationAnimation.fillMode = kCAFillModeForwards;
-//    [chartLayer addAnimation:rotationAnimation forKey:nil];
-//
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     rotationAnimation.fromValue = [NSNumber numberWithFloat:0];
-    rotationAnimation.toValue = [NSNumber numberWithFloat: M_PI];
+    rotationAnimation.toValue = [NSNumber numberWithFloat: sliceAngle - gap];
     rotationAnimation.duration = kAnimationDuration;
     rotationAnimation.repeatCount = 0;
     rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
@@ -170,27 +127,58 @@
     group.fillMode = kCAFillModeForwards;
     [group setAnimations: [NSArray arrayWithObjects: sliceAnimation, rotationAnimation, nil]];
     [chartLayer addAnimation: group forKey:  nil];
+    
+    chartLayer.shadowColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.5].CGColor;
+    chartLayer.shadowOffset = CGSizeMake(0, 5);
+    chartLayer.shadowOpacity = 1.0;
+    chartLayer.shadowRadius = 1;
+    chartLayer.masksToBounds = NO;
+    
+    [self addLabelsOnChart];
 }
 
 -(void)loadData
 {
     NSNumber *int1 = [[NSNumber alloc]initWithInt:250];
     NSNumber *int2 = [[NSNumber alloc]initWithInt:100];
-    NSNumber *int3 = [[NSNumber alloc]initWithInt:180];
-    NSNumber *int4 = [[NSNumber alloc]initWithInt:160];
-    NSNumber *int5 = [[NSNumber alloc]initWithInt:290];
-    NSNumber *int6 = [[NSNumber alloc]initWithInt:200];
-    NSNumber *int7 = [[NSNumber alloc]initWithInt:200];
+    NSNumber *int3 = [[NSNumber alloc]initWithInt:183];
+    NSNumber *int4 = [[NSNumber alloc]initWithInt:167];
+    NSNumber *int5 = [[NSNumber alloc]initWithInt:293];
+    NSNumber *int6 = [[NSNumber alloc]initWithInt:208];
+    NSNumber *int7 = [[NSNumber alloc]initWithInt:132];
     
-    [inputData addObject:int1];
-    [inputData addObject:int2];
-    [inputData addObject:int3];
-    [inputData addObject:int4];
-    [inputData addObject:int5];
-    [inputData addObject:int6];
-    [inputData addObject:int7];
+    [self.inputData addObject:int1];
+    [self.inputData addObject:int2];
+    [self.inputData addObject:int3];
+    [self.inputData addObject:int4];
+    [self.inputData addObject:int5];
+    [self.inputData addObject:int6];
+    [self.inputData addObject:int7];
+    
+    self.normalizedData = [self normalizeArray:self.inputData];
     
     self.numberOfSlices = [self.inputData count];
+}
+
+-(NSMutableArray*)normalizeArray: (NSMutableArray*)inputArray
+{
+    NSMutableArray *normalizedArray = [[NSMutableArray alloc]init];
+    
+    maxValue = [[inputArray valueForKeyPath:@"@max.intValue"] intValue];
+    NSLog(@"max value = %d",maxValue );
+    
+    float normalizationFactor = 300.0/maxValue;
+    NSLog(@"normalizationFactor = %f", normalizationFactor);
+    
+    for (NSNumber* originalNumber in inputArray)
+    {
+        NSNumber *normalizedValue = [[NSNumber alloc]initWithFloat:[originalNumber floatValue]*normalizationFactor];
+        [normalizedArray addObject:normalizedValue];
+    }
+    
+    NSLog(@"%@", normalizedArray);
+    return normalizedArray;
+
 }
 
 -(CGPathRef)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle withColor:(UIColor *)color
@@ -204,24 +192,42 @@
     next.y = self.viewCenter.y + radius * sin(startAngle);
     [sliceArc addLineToPoint:next];
     [sliceArc addArcWithCenter:self.viewCenter radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
-//    if (closePathFlag == 0)
-//    {
-//        closePathFlag = 1;
-//        NSLog(@"not closing path");
-//
-//    }
-//    else
-//    {
-//        closePathFlag = 0;
-//        [sliceArc closePath];
-//        NSLog(@"closing path");
-//    }
-//    [color set];
-//    [sliceArc fill];
-//    [sliceArc stroke];
     
     return sliceArc.CGPath;
 
+}
+
+-(void)addLabelsOnChart
+{
+    int startValue = maxValue/5;
+    int valueToBeAdded = startValue;
+    NSString *stringValue;
+    
+    for (int i = 0; i<5; i++)
+    {
+        
+        if (i==4)
+        {
+             stringValue = [NSString stringWithFormat:@"%d",maxValue];
+
+        }
+        else
+        {
+             stringValue = [NSString stringWithFormat:@"%d",startValue];
+        }
+        
+        CATextLayer *label = [[CATextLayer alloc] init];
+        [label setFont:@"Helvetica"];
+        [label setFontSize:15];
+        [label setForegroundColor:[[UIColor darkGrayColor] CGColor]];
+        [label setBackgroundColor:[[UIColor colorWithWhite:0.9 alpha:0.4] CGColor]];
+        [label setFrame:CGRectMake(self.viewCenter.x + (i+1)*60, self.viewCenter.y-7, 40, 20)];
+        [label setAlignmentMode:kCAAlignmentCenter];
+        [label setString:stringValue];
+        [self.layer addSublayer:label];
+        startValue+= valueToBeAdded;
+        
+    }
 }
 
 

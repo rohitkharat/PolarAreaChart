@@ -12,9 +12,11 @@
 {
     int closePathFlag;
     CABasicAnimation *sliceAnimation;
+    int maxValue;
 }
 
 @property NSMutableArray *inputData;
+@property NSMutableArray *normalizedData;
 @property int numberOfSlices;
 @property CGPoint viewCenter;
 

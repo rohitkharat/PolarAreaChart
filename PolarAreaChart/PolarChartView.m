@@ -7,6 +7,11 @@
 //
 
 #import "PolarChartView.h"
+#import <math.h>
+#define kSATURATION 0.5
+#define kBRIGHTNESS 0.75
+#define kALPHA 0.7
+#define kAnimationDuration 1.0
 
 @implementation PolarChartView
 @synthesize numberOfSlices, inputData, viewCenter;
@@ -54,76 +59,117 @@
 -(void)drawPolarChart:(NSMutableArray*)inputArray
 {
 
-    
+    CALayer *chartLayer = [CALayer layer];
     self.numberOfSlices = [inputArray count];
     
-    float redColor = 0.1;
-    float greenColor = 0.3;
-    float blueColor = 0.6;
-    int i = 0;
+//    float redColor = 0.1;
+//    float greenColor = 0.3;
+//    float blueColor = 0.6;
+    int index = 0;
     float sliceAngle = 2*3.142/self.numberOfSlices;
     float startAngle, endAngle = 0.0;
     float gap = 0.1;
     
     for (NSNumber *radius in inputArray)
     {
-        startAngle = i * sliceAngle;
-        endAngle = (i+1)*sliceAngle;
+        startAngle = index * sliceAngle;
+        endAngle = (index+1)*sliceAngle;
     
-        CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.6]];
-        CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.6]];
+        CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
+        CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
 
-        redColor+=0.3;
-        greenColor+=0.2;
-        i++;
-        
+//        redColor+=0.3;
+//        greenColor+=0.2;
+        index++;
         //------------------------------------------
         //Animation of each slice
-
         CAShapeLayer *slice = [CAShapeLayer layer];
-        slice.fillColor = [UIColor colorWithRed:redColor green:greenColor blue:blueColor alpha:0.7].CGColor;
+        slice.fillColor = [UIColor colorWithHue:fmodf(index*0.15, 1.0) saturation:kSATURATION brightness:kBRIGHTNESS alpha:kALPHA].CGColor;
         slice.strokeColor = [UIColor blackColor].CGColor;
         slice.lineWidth = 0.0;
         slice.path = fromPath;
-        
-        [self.layer addSublayer:slice];
-        
-        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"path"];
-        animation.duration = 0.5;
-        
-        animation.fromValue = (__bridge id)fromPath;
-        animation.toValue = (__bridge id)toPath;
-        animation.removedOnCompletion = NO;
-        animation.fillMode = kCAFillModeForwards;
-        
-        [slice addAnimation:animation forKey:nil];
-        //------------------------------------------
-        
-        //------------------------------------------
-        //Rotation of each slice
 
-        float degreesVariance = 90;
-        int rads = [@(M_PI/2) intValue];
-        CATransform3D zRotation;
-        zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
-        CABasicAnimation *animateZRotation;
-        animateZRotation = [CABasicAnimation animationWithKeyPath:@"transform"];
-        animateZRotation.toValue = [NSValue valueWithCATransform3D:zRotation];
-        animateZRotation.duration = 2.0;
-        animateZRotation.fillMode = kCAFillModeForwards;
-        //[self.layer addAnimation:animateZRotation forKey:nil];
+        [chartLayer addSublayer:slice];
+        
+        sliceAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+        sliceAnimation.duration = kAnimationDuration;
+        
+        sliceAnimation.fromValue = (__bridge id)fromPath;
+        sliceAnimation.toValue = (__bridge id)toPath;
+        sliceAnimation.removedOnCompletion = NO;
+        sliceAnimation.fillMode = kCAFillModeForwards;
+        
+        [slice addAnimation:sliceAnimation forKey:nil];
+        //------------------------------------------
+        
+        //----
+//        NSNumber *rotationAtStart = [myLayer valueForKeyPath:@"transform.rotation"];
+//        CATransform3D myRotationTransform = CATransform3DRotate(myLayer.transform, myRotationAngle, 0.0, 0.0, 1.0);
+//        myLayer.transform = myRotationTransform;
+//        CABasicAnimation *myAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
+//        myAnimation.duration = kMyAnimationDuration;
+//        myAnimation.fromValue = rotationAtStart;
+//        myAnimation.toValue = [NSNumber numberWithFloat:([rotationAtStart floatValue] + myRotationAngle)];
+//        [myLayer addAnimation:myAnimation forKey:@"transform.rotation"];
+        //----
+        
+        //------------------------------------------
+//        //Rotation of each slice
+//        int rads = [@(M_PI/2) intValue];
+//        CATransform3D zRotation;
+//        zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
+//        CABasicAnimation *rotationAnimation;
+//        rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+//        rotationAnimation.toValue = [NSValue valueWithCATransform3D:zRotation];
+//        rotationAnimation.duration = 5.5;
+//        rotationAnimation.fillMode = kCAFillModeForwards;
+//        [chartLayer addAnimation:rotationAnimation forKey:nil];
         //------------------------------------------
         
         //adding animations into a group.
-        CAAnimationGroup* group = [CAAnimationGroup animation];
-        [group setDuration: 2.0];  //Set the duration of the group to the time for all animations
-        group.removedOnCompletion = FALSE;
-        group.fillMode = kCAFillModeForwards;
-        [group setAnimations: [NSArray arrayWithObjects: animation, animateZRotation, nil]];
-        [self.layer addAnimation: group forKey:  nil];
-
+//        CAAnimationGroup* group = [CAAnimationGroup animation];
+//        [group setDuration: 5.0];  //Set the duration of the group to the time for all animations
+//        group.removedOnCompletion = FALSE;
+//        group.fillMode = kCAFillModeForwards;
+//        [group setAnimations: [NSArray arrayWithObjects: sliceAnimation, rotationAnimation, nil]];
+//        [slice addAnimation: group forKey:  nil];
     }
+
+    //[chartLayer setFrame:CGRectMake(self.viewCenter.x, self.viewCenter.y, 10 , 10)];
+
+    //self.layer.anchorPoint = CGPointMake(0.5, 0.5);
+    chartLayer.position = self.viewCenter;
+
+    [self.layer addSublayer:chartLayer];
+    [chartLayer setBounds:CGRectMake(self.bounds.size.width/2, self.bounds.size.height/2, 0 , 0)];
+
+   // chartLayer.anchorPoint = CGPointMake(1.0, 0.0);
+
+    //Rotation of polar area chart
+//    int rads = [@(M_PI/2) intValue];
+//    CATransform3D zRotation;
+//    zRotation = CATransform3DMakeRotation(rads, 0, 0, 1.0);
+//    CABasicAnimation *rotationAnimation;
+//    rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+//    rotationAnimation.toValue = [NSValue valueWithCATransform3D:zRotation];
+//    rotationAnimation.duration = 2;
+//    rotationAnimation.fillMode = kCAFillModeForwards;
+//    [chartLayer addAnimation:rotationAnimation forKey:nil];
+//
+    CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    rotationAnimation.fromValue = [NSNumber numberWithFloat:0];
+    rotationAnimation.toValue = [NSNumber numberWithFloat: M_PI];
+    rotationAnimation.duration = kAnimationDuration;
+    rotationAnimation.repeatCount = 0;
+    rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    //[chartLayer addAnimation:rotationAnimation forKey:@"transform.rotation.z"];
     
+    CAAnimationGroup* group = [CAAnimationGroup animation];
+    [group setDuration: kAnimationDuration];  //Set the duration of the group to the time for all animations
+    group.removedOnCompletion = FALSE;
+    group.fillMode = kCAFillModeForwards;
+    [group setAnimations: [NSArray arrayWithObjects: sliceAnimation, rotationAnimation, nil]];
+    [chartLayer addAnimation: group forKey:  nil];
 }
 
 -(void)loadData
@@ -131,14 +177,18 @@
     NSNumber *int1 = [[NSNumber alloc]initWithInt:250];
     NSNumber *int2 = [[NSNumber alloc]initWithInt:100];
     NSNumber *int3 = [[NSNumber alloc]initWithInt:180];
-    NSNumber *int4 = [[NSNumber alloc]initWithInt:60];
+    NSNumber *int4 = [[NSNumber alloc]initWithInt:160];
     NSNumber *int5 = [[NSNumber alloc]initWithInt:290];
+    NSNumber *int6 = [[NSNumber alloc]initWithInt:200];
+    NSNumber *int7 = [[NSNumber alloc]initWithInt:200];
     
     [inputData addObject:int1];
     [inputData addObject:int2];
     [inputData addObject:int3];
     [inputData addObject:int4];
     [inputData addObject:int5];
+    [inputData addObject:int6];
+    [inputData addObject:int7];
     
     self.numberOfSlices = [self.inputData count];
 }

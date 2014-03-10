@@ -11,6 +11,7 @@
 @interface PolarChartView : UIView
 {
     int closePathFlag;
+    CABasicAnimation *sliceAnimation;
 }
 
 @property NSMutableArray *inputData;

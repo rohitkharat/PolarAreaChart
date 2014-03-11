@@ -33,14 +33,13 @@
         [refreshButton setBackgroundColor:[UIColor clearColor]];
         [refreshButton setImage:[UIImage imageNamed:@"redo.png"] forState:UIControlStateNormal];
         refreshButton.showsTouchWhenHighlighted = TRUE;
-        [refreshButton addTarget:self action:@selector(refreshScreen) forControlEvents:UIControlEventTouchUpInside];
+        [refreshButton addTarget:self action:@selector(redrawChart) forControlEvents:UIControlEventTouchUpInside];
         
     }
     return self;
 }
 
-
--(void)refreshScreen
+-(void)redrawChart
 {
     NSLog(@"refresh");
     [self drawPolarChart:self.normalizedData];

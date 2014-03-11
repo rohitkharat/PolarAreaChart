@@ -17,6 +17,10 @@
     
     CAShapeLayer *slice;
     CALayer *chartLayer;
+    float sliceAngle;
+    
+    float fromValue;
+    float toValue;
 }
 
 @property NSMutableArray *inputData;

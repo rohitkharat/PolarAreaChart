@@ -22,9 +22,9 @@
 		712688A818C5D44F0058AB0E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 712688A618C5D44F0058AB0E /* InfoPlist.strings */; };
 		712688AA18C5D44F0058AB0E /* PolarAreaChartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 712688A918C5D44F0058AB0E /* PolarAreaChartTests.m */; };
 		713447E818C6639E004BB5E5 /* PolarChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 713447E718C6639E004BB5E5 /* PolarChartView.m */; };
-		713447EB18C71993004BB5E5 /* SliceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 713447EA18C71993004BB5E5 /* SliceLayer.m */; };
 		713447ED18C719B2004BB5E5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 713447EC18C719B2004BB5E5 /* QuartzCore.framework */; };
 		7162B65A18CEEECD00327041 /* samplejson.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65918CEEECD00327041 /* samplejson.txt */; };
+		7162B65C18CF637E00327041 /* redo.png in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65B18CF637E00327041 /* redo.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,10 +59,9 @@
 		712688A918C5D44F0058AB0E /* PolarAreaChartTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PolarAreaChartTests.m; sourceTree = "<group>"; };
 		713447E618C6639E004BB5E5 /* PolarChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolarChartView.h; sourceTree = "<group>"; };
 		713447E718C6639E004BB5E5 /* PolarChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PolarChartView.m; sourceTree = "<group>"; };
-		713447E918C71993004BB5E5 /* SliceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SliceLayer.h; sourceTree = "<group>"; };
-		713447EA18C71993004BB5E5 /* SliceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SliceLayer.m; sourceTree = "<group>"; };
 		713447EC18C719B2004BB5E5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		7162B65918CEEECD00327041 /* samplejson.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = samplejson.txt; sourceTree = "<group>"; };
+		7162B65B18CF637E00327041 /* redo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redo.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,11 +128,10 @@
 				7126889018C5D44F0058AB0E /* Main.storyboard */,
 				713447E618C6639E004BB5E5 /* PolarChartView.h */,
 				713447E718C6639E004BB5E5 /* PolarChartView.m */,
-				713447E918C71993004BB5E5 /* SliceLayer.h */,
-				713447EA18C71993004BB5E5 /* SliceLayer.m */,
 				7126889318C5D44F0058AB0E /* ViewController.h */,
 				7126889418C5D44F0058AB0E /* ViewController.m */,
 				7162B65918CEEECD00327041 /* samplejson.txt */,
+				7162B65B18CF637E00327041 /* redo.png */,
 				7126889618C5D44F0058AB0E /* Images.xcassets */,
 				7126888518C5D44F0058AB0E /* Supporting Files */,
 			);
@@ -246,6 +244,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7162B65A18CEEECD00327041 /* samplejson.txt in Resources */,
+				7162B65C18CF637E00327041 /* redo.png in Resources */,
 				7126889718C5D44F0058AB0E /* Images.xcassets in Resources */,
 				7126888918C5D44F0058AB0E /* InfoPlist.strings in Resources */,
 				7126889218C5D44F0058AB0E /* Main.storyboard in Resources */,
@@ -268,7 +267,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7126889518C5D44F0058AB0E /* ViewController.m in Sources */,
-				713447EB18C71993004BB5E5 /* SliceLayer.m in Sources */,
 				7126888F18C5D44F0058AB0E /* AppDelegate.m in Sources */,
 				713447E818C6639E004BB5E5 /* PolarChartView.m in Sources */,
 				7126888B18C5D44F0058AB0E /* main.m in Sources */,

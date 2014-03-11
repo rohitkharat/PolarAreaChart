@@ -12,7 +12,7 @@
 #define kSATURATION 0.5
 #define kBRIGHTNESS 0.75
 #define kALPHA 0.7
-#define kAnimationDuration 0.4
+#define kAnimationDuration 0.5
 #define myQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
 @implementation PolarChartView
@@ -27,13 +27,14 @@
         
         [self performSelectorOnMainThread:@selector(getDataFromServer) withObject:nil waitUntilDone:YES];
         
-        UIButton *refreshButton = [[UIButton alloc]initWithFrame:CGRectMake(self.frame.size.width/2 - 50, 730, 100, 50)];
+        UIButton *refreshButton = [[UIButton alloc]initWithFrame:CGRectMake(self.frame.size.width/2 - 13, 700, 100, 50)];
         [self addSubview:refreshButton];
         [refreshButton setTitle:@"Refresh" forState:UIControlStateNormal];
-        [refreshButton setBackgroundColor:[UIColor lightGrayColor]];
+        [refreshButton setBackgroundColor:[UIColor clearColor]];
+        [refreshButton setImage:[UIImage imageNamed:@"redo.png"] forState:UIControlStateNormal];
         refreshButton.showsTouchWhenHighlighted = TRUE;
         [refreshButton addTarget:self action:@selector(refreshScreen) forControlEvents:UIControlEventTouchUpInside];
-
+        
     }
     return self;
 }
@@ -45,6 +46,9 @@
     [self drawPolarChart:self.normalizedData];
 }
 
+/**
+ Method to fetch data from json file which is stored on a server
+ */
 -(void)getDataFromServer
 {
     //NSString *string = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"samplejson" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
@@ -54,7 +58,7 @@
     //NSLog(@"getDataFromServer");
     
     NSString *dataURLString = @"http://chatbuff.com:8080/rohit/sample.json";
-
+    
     NSURL *dataURL = [[NSURL alloc]initWithString:dataURLString];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]init];
     [request setURL:dataURL];
@@ -92,11 +96,15 @@
 //    {
 //        //jsonData = [[NSMutableData alloc]init];
 //        //[jsonData appendData:data];
-//        
+//
 //        //NSLog(@"data: %@", data);
 //    }
 //}
 
+
+/**
+ Method to get array of values from json data
+ */
 -(void)loadData:(NSData*)jData
 {
     //NSLog(@"jdata: %@", jData);
@@ -110,11 +118,8 @@
     
     [self performSelectorOnMainThread:@selector(getValuesFromJsonData:) withObject:jData waitUntilDone:YES];
     
-    
-    
     //NSLog(@"jData = %@", jData);
     //NSLog(@"inputData: %@", self.inputData);
-    // self.normalizedData = [self normalizeArray:self.inputData];
     [self performSelectorOnMainThread:@selector(normalizeArray:) withObject:self.inputData waitUntilDone:YES];
     //NSLog(@"normalized: %@",self.normalizedData);
     
@@ -126,10 +131,11 @@
     NSLog(@"error %@", error);
 }
 
+/**
+ Method to parse json data and get required values
+ */
 -(NSMutableArray*)getValuesFromJsonData:(NSData*)json
 {
-    //jsonData = [jsonText dataUsingEncoding:NSUTF8StringEncoding] ;
-    //NSLog(@"getValuesFromJsonData");
     NSError *localError = nil;
     NSDictionary *parsedObject;
     //NSLog(@"json data passed to getValuesFromJsonData: %@", json);
@@ -143,8 +149,8 @@
         }
         
         NSMutableArray* array = [[NSMutableArray alloc]initWithArray:[parsedObject valueForKey:@"values"]];
-//        NSLog(@"received %d values", [array count]);
-//        NSLog(@"array received %@", array);
+        //NSLog(@"received %d values", [array count]);
+        //NSLog(@"array received %@", array);
         self.inputData = [[NSMutableArray alloc]initWithArray:array];
         return array;
     }
@@ -157,16 +163,19 @@
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
- - (void)drawRect:(CGRect)rect
- {
-     self.viewCenter = CGPointMake(self.frame.size.height/2, self.frame.size.width/2);
+- (void)drawRect:(CGRect)rect
+{
+    self.viewCenter = CGPointMake(self.frame.size.height/2, self.frame.size.width/2);
     // NSLog(@"center = %f, %f", self.frame.size.width/2, self.frame.size.height/2);
+    
+    [self drawConcentricCircles];
+    //[self setNeedsDisplay];
+    
+}
 
-     [self drawConcentricCircles];
-     //[self setNeedsDisplay];
-     
- }
-
+/**
+ Method to draw concentric circles as a base for the polar area chart
+ */
 -(void)drawConcentricCircles
 {
     ////draws 5 concentric circles
@@ -180,16 +189,19 @@
     }
 }
 
+/**
+ This is the method in which each slice is rendered and animated
+ */
 -(void)drawPolarChart:(NSMutableArray*)inputArray
 {
-
+    
     [chartLayer removeFromSuperlayer];
     NSLog(@"drawing polar chart");
     chartLayer = [CALayer layer];
     self.numberOfSlices = [inputArray count];
     
     int index = 0;
-    float sliceAngle = 2*3.142/self.numberOfSlices;
+    sliceAngle = 2*3.142/self.numberOfSlices;
     float startAngle = (3.142) - sliceAngle;
     float endAngle = 0.0;
     float gap = 0.1;
@@ -198,10 +210,10 @@
     {
         startAngle = ((index-1) * sliceAngle);
         endAngle = index*sliceAngle;
-    
-        CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
-        CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
-
+        
+        CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap];
+        CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle];
+        
         index++;
         
         //------------------------------------------
@@ -211,9 +223,8 @@
         slice.strokeColor = [UIColor blackColor].CGColor;
         slice.lineWidth = 0.0;
         slice.path = fromPath;
-
-        [chartLayer addSublayer:slice];
         
+        [chartLayer addSublayer:slice];
         
         sliceAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         sliceAnimation.duration = kAnimationDuration;
@@ -225,23 +236,15 @@
         sliceAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         
         [slice addAnimation:sliceAnimation forKey:nil];
-        //------------------------------------------
-        
     }
-
+    
     //[chartLayer setFrame:CGRectMake(self.viewCenter.x, self.viewCenter.y, 10 , 10)];
-
+    
     //self.layer.anchorPoint = CGPointMake(0.5, 0.5);
     chartLayer.position = self.viewCenter;
-
+    
     [self.layer addSublayer:chartLayer];
     [chartLayer setBounds:CGRectMake(self.bounds.size.width/2, self.bounds.size.height/2, 0 , 0)];
-
-   // chartLayer.anchorPoint = CGPointMake(1.0, 0.0);
-
-//    BOOL stopBounce = NO;
-//    BOOL clockwise = FALSE;
-//    CGFloat difference = 0.2;
     
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     rotationAnimation.fromValue = [NSNumber numberWithFloat:1.5*3.14];
@@ -249,51 +252,6 @@
     rotationAnimation.duration = kAnimationDuration;
     rotationAnimation.repeatCount = 0;
     rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    
-//    int i = 0;
-//    float temp = 0.0;
-//    
-//    NSLog(@"temp = %f", temp);
-//    NSLog(@"original fromValue = %@", rotationAnimation.fromValue);
-//    NSLog(@"original toValue = %@", rotationAnimation.toValue);
-//    
-//    NSMutableArray *animationArray = [[NSMutableArray alloc]init];
-//    [animationArray addObject:rotationAnimation];
-//    
-//    while (i<4)
-//    {
-//        NSLog(@"-----inside while-----");
-//        temp = [rotationAnimation.fromValue floatValue];
-//        NSLog(@"temp = %f", temp);
-//        rotationAnimation.fromValue = rotationAnimation.toValue;
-//        NSLog(@"fromValue = %@", rotationAnimation.fromValue);
-//        rotationAnimation.toValue = [NSNumber numberWithFloat:temp];
-//        NSLog(@"toValue = %@", rotationAnimation.toValue);
-//        
-//        CABasicAnimation *newRotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-//        newRotationAnimation.fromValue = rotationAnimation.fromValue;
-//        newRotationAnimation.toValue = rotationAnimation.toValue;
-//        newRotationAnimation.duration = kAnimationDuration;
-//        newRotationAnimation.repeatCount = 0;
-//        newRotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-//        
-//        //[animationArray addObject:newRotationAnimation];
-//        [chartLayer addAnimation:newRotationAnimation forKey:@"transform.rotation.z"];
-//        
-//        i++;
-//    }
-    
-//    while (stopBounce!=YES)
-//    {
-//        rotationAnimation.fromValue = [NSNumber numberWithFloat:1.5*3.14];
-//        rotationAnimation.toValue = [NSNumber numberWithFloat: 1.5*3.14 + sliceAngle - gap];
-//        
-//        if (rotationAnimation.fromValue >= rotationAnimation.toValue)
-//        {
-//            rotationAnimation.fromValue = rotationAnimation.toValue;
-//            stopBounce=YES;
-//        }
-//    }
     
     CAAnimationGroup* group = [CAAnimationGroup animation];
     [group setDuration: kAnimationDuration];
@@ -311,7 +269,9 @@
     [self addLabelsOnChart];
 }
 
-
+/**
+ Method to normalize the received values with respect to the largest value and the maximum radius
+ */
 -(NSMutableArray*)normalizeArray: (NSMutableArray*)inputArray
 {
     NSMutableArray *normalizedArray = [[NSMutableArray alloc]init];
@@ -331,10 +291,13 @@
     //NSLog(@"%@", normalizedArray);
     self.normalizedData = normalizedArray;
     return normalizedArray;
-
+    
 }
 
--(CGPathRef)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle withColor:(UIColor *)color
+/**
+ Method to add a slice to the polar area chart using UIBezierPath
+ */
+-(CGPathRef)addSlice: (CGFloat)radius fromStartAngle:(CGFloat)startAngle toEndAngle:(CGFloat)endAngle
 {
     UIBezierPath *sliceArc = [UIBezierPath bezierPath]; //empty path
     [sliceArc setLineWidth:0.5];
@@ -347,9 +310,12 @@
     [sliceArc addArcWithCenter:self.viewCenter radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
     
     return sliceArc.CGPath;
-
+    
 }
 
+/**
+ Method to add labels on the chart to indicate the scale
+ */
 -(void)addLabelsOnChart
 {
     int startValue = maxValue/5;
@@ -360,11 +326,11 @@
     {
         if (i==4)
         {
-             stringValue = [NSString stringWithFormat:@"%d",maxValue];
+            stringValue = [NSString stringWithFormat:@"%d",maxValue];
         }
         else
         {
-             stringValue = [NSString stringWithFormat:@"%d",startValue];
+            stringValue = [NSString stringWithFormat:@"%d",startValue];
         }
         
         CATextLayer *label = [[CATextLayer alloc] init];

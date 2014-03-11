@@ -8,13 +8,15 @@
 
 #import "PolarChartView.h"
 #import <math.h>
+
 #define kSATURATION 0.5
 #define kBRIGHTNESS 0.75
 #define kALPHA 0.7
 #define kAnimationDuration 0.7
+#define myQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
 @implementation PolarChartView
-@synthesize numberOfSlices, inputData, viewCenter, normalizedData;
+@synthesize numberOfSlices, inputData, viewCenter, normalizedData, textFromFile;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -23,14 +25,122 @@
         // Initialization code
         self.backgroundColor = [UIColor clearColor];
         
-        self.inputData = [[NSMutableArray alloc]init];
-        self.normalizedData = [[NSMutableArray alloc]init];
-        [self loadData];
         closePathFlag = 0;
+        [self performSelectorOnMainThread:@selector(getDataFromServer) withObject:nil waitUntilDone:YES];
+        //[self getDataFromServer];
     }
     return self;
 }
 
+-(void)getDataFromServer
+{
+    //NSString *string = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"samplejson" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    //NSLog(@"%@", string);
+    
+    //return string;
+    //NSLog(@"getDataFromServer");
+    
+    NSString *dataURLString = @"http://chatbuff.com:8080/rohit/sample.json";
+
+    NSURL *dataURL = [[NSURL alloc]initWithString:dataURLString];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]init];
+    [request setURL:dataURL];
+    
+    //connection = [[NSURLConnection alloc]initWithRequest:request delegate:self];
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue currentQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                               NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                               if (data != nil && error == nil && [httpResponse statusCode] == 200)
+                               {
+                                   [self performSelectorOnMainThread:@selector(loadData:) withObject:data waitUntilDone:YES];
+                                   [self drawPolarChart:self.normalizedData];
+                               }
+                               else
+                               {
+                                   UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Error" message:@"There was an error connecting to the server" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                                   [alert show];
+                                   NSLog(@"data is nil");
+                                   
+                               }
+                               
+                           }];
+    
+}
+
+//- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+//{
+//    if (data == nil)
+//    {
+//        NSLog(@"data is nil");
+//    }
+//    else
+//    {
+//        //jsonData = [[NSMutableData alloc]init];
+//        //[jsonData appendData:data];
+//        
+//        //NSLog(@"data: %@", data);
+//    }
+//}
+
+-(void)loadData:(NSData*)jData
+{
+    //NSLog(@"jdata: %@", jData);
+    //self.textFromFile = [self getTextFromFile];
+    //    dispatch_async(myQueue, ^{NSData *data = [NSData dataWithData:jData];
+    //        [self performSelectorOnMainThread:@selector(getValuesFromJsonData:)
+    //                               withObject:data waitUntilDone:YES];
+    //    });
+    
+    self.normalizedData = [[NSMutableArray alloc]init];
+    
+    [self performSelectorOnMainThread:@selector(getValuesFromJsonData:) withObject:jData waitUntilDone:YES];
+    
+    
+    
+    //NSLog(@"jData = %@", jData);
+    //NSLog(@"inputData: %@", self.inputData);
+    // self.normalizedData = [self normalizeArray:self.inputData];
+    [self performSelectorOnMainThread:@selector(normalizeArray:) withObject:self.inputData waitUntilDone:YES];
+    //NSLog(@"normalized: %@",self.normalizedData);
+    
+    self.numberOfSlices = [self.inputData count];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    NSLog(@"error %@", error);
+}
+
+-(NSMutableArray*)getValuesFromJsonData:(NSData*)json
+{
+    //jsonData = [jsonText dataUsingEncoding:NSUTF8StringEncoding] ;
+    //NSLog(@"getValuesFromJsonData");
+    NSError *localError = nil;
+    NSDictionary *parsedObject;
+    //NSLog(@"json data passed to getValuesFromJsonData: %@", json);
+    if (json!=nil)
+    {
+        parsedObject = [NSJSONSerialization JSONObjectWithData:json options:0 error:&localError];
+        if (localError != nil)
+        {
+            return nil;
+            NSLog(@"error");
+        }
+        
+        NSMutableArray* array = [[NSMutableArray alloc]initWithArray:[parsedObject valueForKey:@"values"]];
+//        NSLog(@"received %d values", [array count]);
+//        NSLog(@"array received %@", array);
+        self.inputData = [[NSMutableArray alloc]initWithArray:array];
+        return array;
+    }
+    
+    else
+    {
+        return nil;
+    }
+}
 
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
@@ -40,7 +150,7 @@
     // NSLog(@"center = %f, %f", self.frame.size.width/2, self.frame.size.height/2);
 
      [self drawConcentricCircles];
-     [self drawPolarChart:self.normalizedData];
+     //[self setNeedsDisplay];
      
  }
 
@@ -60,6 +170,7 @@
 -(void)drawPolarChart:(NSMutableArray*)inputArray
 {
 
+    NSLog(@"drawing polar chart");
     CALayer *chartLayer = [CALayer layer];
     self.numberOfSlices = [inputArray count];
     
@@ -77,9 +188,8 @@
         CGPathRef fromPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:startAngle+gap withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
         CGPathRef toPath = [self addSlice:[radius floatValue] fromStartAngle:startAngle+gap toEndAngle:endAngle withColor:[UIColor colorWithHue:index/self.numberOfSlices saturation:0.5 brightness:0.75 alpha:1.0]];
 
-//        redColor+=0.3;
-//        greenColor+=0.2;
         index++;
+        
         //------------------------------------------
         //Animation of each slice
         CAShapeLayer *slice = [CAShapeLayer layer];
@@ -90,6 +200,7 @@
 
         [chartLayer addSublayer:slice];
         
+        
         sliceAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         sliceAnimation.duration = kAnimationDuration;
         
@@ -97,6 +208,7 @@
         sliceAnimation.toValue = (__bridge id)toPath;
         sliceAnimation.removedOnCompletion = NO;
         sliceAnimation.fillMode = kCAFillModeForwards;
+        sliceAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         
         [slice addAnimation:sliceAnimation forKey:nil];
         //------------------------------------------
@@ -113,16 +225,64 @@
 
    // chartLayer.anchorPoint = CGPointMake(1.0, 0.0);
 
+//    BOOL stopBounce = NO;
+//    BOOL clockwise = FALSE;
+//    CGFloat difference = 0.2;
+    
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-    rotationAnimation.fromValue = [NSNumber numberWithFloat:0];
-    rotationAnimation.toValue = [NSNumber numberWithFloat: sliceAngle - gap];
+    rotationAnimation.fromValue = [NSNumber numberWithFloat:1.5*3.14];
+    rotationAnimation.toValue = [NSNumber numberWithFloat: 1.5*3.14 + sliceAngle - gap];
     rotationAnimation.duration = kAnimationDuration;
     rotationAnimation.repeatCount = 0;
     rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    //[chartLayer addAnimation:rotationAnimation forKey:@"transform.rotation.z"];
+    
+//    int i = 0;
+//    float temp = 0.0;
+//    
+//    NSLog(@"temp = %f", temp);
+//    NSLog(@"original fromValue = %@", rotationAnimation.fromValue);
+//    NSLog(@"original toValue = %@", rotationAnimation.toValue);
+//    
+//    NSMutableArray *animationArray = [[NSMutableArray alloc]init];
+//    [animationArray addObject:rotationAnimation];
+//    
+//    while (i<4)
+//    {
+//        NSLog(@"-----inside while-----");
+//        temp = [rotationAnimation.fromValue floatValue];
+//        NSLog(@"temp = %f", temp);
+//        rotationAnimation.fromValue = rotationAnimation.toValue;
+//        NSLog(@"fromValue = %@", rotationAnimation.fromValue);
+//        rotationAnimation.toValue = [NSNumber numberWithFloat:temp];
+//        NSLog(@"toValue = %@", rotationAnimation.toValue);
+//        
+//        CABasicAnimation *newRotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+//        newRotationAnimation.fromValue = rotationAnimation.fromValue;
+//        newRotationAnimation.toValue = rotationAnimation.toValue;
+//        newRotationAnimation.duration = kAnimationDuration;
+//        newRotationAnimation.repeatCount = 0;
+//        newRotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+//        
+//        //[animationArray addObject:newRotationAnimation];
+//        [chartLayer addAnimation:newRotationAnimation forKey:@"transform.rotation.z"];
+//        
+//        i++;
+//    }
+    
+//    while (stopBounce!=YES)
+//    {
+//        rotationAnimation.fromValue = [NSNumber numberWithFloat:1.5*3.14];
+//        rotationAnimation.toValue = [NSNumber numberWithFloat: 1.5*3.14 + sliceAngle - gap];
+//        
+//        if (rotationAnimation.fromValue >= rotationAnimation.toValue)
+//        {
+//            rotationAnimation.fromValue = rotationAnimation.toValue;
+//            stopBounce=YES;
+//        }
+//    }
     
     CAAnimationGroup* group = [CAAnimationGroup animation];
-    [group setDuration: kAnimationDuration];  //Set the duration of the group to the time for all animations
+    [group setDuration: kAnimationDuration];
     group.removedOnCompletion = FALSE;
     group.fillMode = kCAFillModeForwards;
     [group setAnimations: [NSArray arrayWithObjects: sliceAnimation, rotationAnimation, nil]];
@@ -137,38 +297,16 @@
     [self addLabelsOnChart];
 }
 
--(void)loadData
-{
-    NSNumber *int1 = [[NSNumber alloc]initWithInt:250];
-    NSNumber *int2 = [[NSNumber alloc]initWithInt:100];
-    NSNumber *int3 = [[NSNumber alloc]initWithInt:183];
-    NSNumber *int4 = [[NSNumber alloc]initWithInt:167];
-    NSNumber *int5 = [[NSNumber alloc]initWithInt:293];
-    NSNumber *int6 = [[NSNumber alloc]initWithInt:208];
-    NSNumber *int7 = [[NSNumber alloc]initWithInt:132];
-    
-    [self.inputData addObject:int1];
-    [self.inputData addObject:int2];
-    [self.inputData addObject:int3];
-    [self.inputData addObject:int4];
-    [self.inputData addObject:int5];
-    [self.inputData addObject:int6];
-    [self.inputData addObject:int7];
-    
-    self.normalizedData = [self normalizeArray:self.inputData];
-    
-    self.numberOfSlices = [self.inputData count];
-}
 
 -(NSMutableArray*)normalizeArray: (NSMutableArray*)inputArray
 {
     NSMutableArray *normalizedArray = [[NSMutableArray alloc]init];
     
     maxValue = [[inputArray valueForKeyPath:@"@max.intValue"] intValue];
-    NSLog(@"max value = %d",maxValue );
+    //NSLog(@"max value = %d",maxValue );
     
     float normalizationFactor = 300.0/maxValue;
-    NSLog(@"normalizationFactor = %f", normalizationFactor);
+    //NSLog(@"normalizationFactor = %f", normalizationFactor);
     
     for (NSNumber* originalNumber in inputArray)
     {
@@ -176,7 +314,8 @@
         [normalizedArray addObject:normalizedValue];
     }
     
-    NSLog(@"%@", normalizedArray);
+    //NSLog(@"%@", normalizedArray);
+    self.normalizedData = normalizedArray;
     return normalizedArray;
 
 }
@@ -205,11 +344,9 @@
     
     for (int i = 0; i<5; i++)
     {
-        
         if (i==4)
         {
              stringValue = [NSString stringWithFormat:@"%d",maxValue];
-
         }
         else
         {
@@ -221,7 +358,7 @@
         [label setFontSize:15];
         [label setForegroundColor:[[UIColor darkGrayColor] CGColor]];
         [label setBackgroundColor:[[UIColor colorWithWhite:0.9 alpha:0.4] CGColor]];
-        [label setFrame:CGRectMake(self.viewCenter.x + (i+1)*60, self.viewCenter.y-7, 40, 20)];
+        [label setFrame:CGRectMake(self.viewCenter.x - 20, self.viewCenter.y - (i+1)*62, 40, 20)];
         [label setAlignmentMode:kCAAlignmentCenter];
         [label setString:stringValue];
         [self.layer addSublayer:label];

@@ -24,6 +24,7 @@
 		713447E818C6639E004BB5E5 /* PolarChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 713447E718C6639E004BB5E5 /* PolarChartView.m */; };
 		713447EB18C71993004BB5E5 /* SliceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 713447EA18C71993004BB5E5 /* SliceLayer.m */; };
 		713447ED18C719B2004BB5E5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 713447EC18C719B2004BB5E5 /* QuartzCore.framework */; };
+		7162B65A18CEEECD00327041 /* samplejson.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65918CEEECD00327041 /* samplejson.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		713447E918C71993004BB5E5 /* SliceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SliceLayer.h; sourceTree = "<group>"; };
 		713447EA18C71993004BB5E5 /* SliceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SliceLayer.m; sourceTree = "<group>"; };
 		713447EC18C719B2004BB5E5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		7162B65918CEEECD00327041 /* samplejson.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = samplejson.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 				713447EA18C71993004BB5E5 /* SliceLayer.m */,
 				7126889318C5D44F0058AB0E /* ViewController.h */,
 				7126889418C5D44F0058AB0E /* ViewController.m */,
+				7162B65918CEEECD00327041 /* samplejson.txt */,
 				7126889618C5D44F0058AB0E /* Images.xcassets */,
 				7126888518C5D44F0058AB0E /* Supporting Files */,
 			);
@@ -242,6 +245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7162B65A18CEEECD00327041 /* samplejson.txt in Resources */,
 				7126889718C5D44F0058AB0E /* Images.xcassets in Resources */,
 				7126888918C5D44F0058AB0E /* InfoPlist.strings in Resources */,
 				7126889218C5D44F0058AB0E /* Main.storyboard in Resources */,

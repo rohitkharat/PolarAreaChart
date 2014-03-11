@@ -8,17 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PolarChartView : UIView
+@interface PolarChartView : UIView <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 {
     int closePathFlag;
     CABasicAnimation *sliceAnimation;
     int maxValue;
+    NSMutableData *jsonData;
+    NSURLConnection *connection;
 }
 
 @property NSMutableArray *inputData;
 @property NSMutableArray *normalizedData;
 @property int numberOfSlices;
 @property CGPoint viewCenter;
+@property NSString *textFromFile;
 
 
 @end

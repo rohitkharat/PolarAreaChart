@@ -24,9 +24,9 @@
     //NSLog(@"view height = %f", self.view.frame.size.height);
 
     [self.view addSubview:polarChartView];
+
     
 }
-
 
 
 - (void)didReceiveMemoryWarning

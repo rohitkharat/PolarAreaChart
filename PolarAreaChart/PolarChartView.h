@@ -10,11 +10,13 @@
 
 @interface PolarChartView : UIView <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 {
-    int closePathFlag;
     CABasicAnimation *sliceAnimation;
     int maxValue;
     NSMutableData *jsonData;
     NSURLConnection *connection;
+    
+    CAShapeLayer *slice;
+    CALayer *chartLayer;
 }
 
 @property NSMutableArray *inputData;

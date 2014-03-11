@@ -12,7 +12,7 @@
 #define kSATURATION 0.5
 #define kBRIGHTNESS 0.75
 #define kALPHA 0.7
-#define kAnimationDuration 0.7
+#define kAnimationDuration 0.4
 #define myQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
 
 @implementation PolarChartView
@@ -25,11 +25,24 @@
         // Initialization code
         self.backgroundColor = [UIColor clearColor];
         
-        closePathFlag = 0;
         [self performSelectorOnMainThread:@selector(getDataFromServer) withObject:nil waitUntilDone:YES];
-        //[self getDataFromServer];
+        
+        UIButton *refreshButton = [[UIButton alloc]initWithFrame:CGRectMake(self.frame.size.width/2 - 50, 730, 100, 50)];
+        [self addSubview:refreshButton];
+        [refreshButton setTitle:@"Refresh" forState:UIControlStateNormal];
+        [refreshButton setBackgroundColor:[UIColor lightGrayColor]];
+        refreshButton.showsTouchWhenHighlighted = TRUE;
+        [refreshButton addTarget:self action:@selector(refreshScreen) forControlEvents:UIControlEventTouchUpInside];
+
     }
     return self;
+}
+
+
+-(void)refreshScreen
+{
+    NSLog(@"refresh");
+    [self drawPolarChart:self.normalizedData];
 }
 
 -(void)getDataFromServer
@@ -170,8 +183,9 @@
 -(void)drawPolarChart:(NSMutableArray*)inputArray
 {
 
+    [chartLayer removeFromSuperlayer];
     NSLog(@"drawing polar chart");
-    CALayer *chartLayer = [CALayer layer];
+    chartLayer = [CALayer layer];
     self.numberOfSlices = [inputArray count];
     
     int index = 0;
@@ -192,7 +206,7 @@
         
         //------------------------------------------
         //Animation of each slice
-        CAShapeLayer *slice = [CAShapeLayer layer];
+        slice = [CAShapeLayer layer];
         slice.fillColor = [UIColor colorWithHue:fmodf(index*0.15, 1.0) saturation:kSATURATION brightness:kBRIGHTNESS alpha:kALPHA].CGColor;
         slice.strokeColor = [UIColor blackColor].CGColor;
         slice.lineWidth = 0.0;

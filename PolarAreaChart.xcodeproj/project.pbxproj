@@ -25,6 +25,7 @@
 		713447ED18C719B2004BB5E5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 713447EC18C719B2004BB5E5 /* QuartzCore.framework */; };
 		7162B65A18CEEECD00327041 /* samplejson.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65918CEEECD00327041 /* samplejson.txt */; };
 		7162B65C18CF637E00327041 /* redo.png in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65B18CF637E00327041 /* redo.png */; };
+		7162B65F18CF775B00327041 /* PolarAreaChart.gif in Resources */ = {isa = PBXBuildFile; fileRef = 7162B65E18CF775B00327041 /* PolarAreaChart.gif */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		713447EC18C719B2004BB5E5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		7162B65918CEEECD00327041 /* samplejson.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = samplejson.txt; sourceTree = "<group>"; };
 		7162B65B18CF637E00327041 /* redo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redo.png; sourceTree = "<group>"; };
+		7162B65E18CF775B00327041 /* PolarAreaChart.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = PolarAreaChart.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 				7162B65918CEEECD00327041 /* samplejson.txt */,
 				7162B65B18CF637E00327041 /* redo.png */,
 				7126889618C5D44F0058AB0E /* Images.xcassets */,
+				7162B65D18CF775B00327041 /* screenshots */,
 				7126888518C5D44F0058AB0E /* Supporting Files */,
 			);
 			path = PolarAreaChart;
@@ -165,6 +168,14 @@
 				712688A618C5D44F0058AB0E /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		7162B65D18CF775B00327041 /* screenshots */ = {
+			isa = PBXGroup;
+			children = (
+				7162B65E18CF775B00327041 /* PolarAreaChart.gif */,
+			);
+			path = screenshots;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -248,6 +259,7 @@
 				7126889718C5D44F0058AB0E /* Images.xcassets in Resources */,
 				7126888918C5D44F0058AB0E /* InfoPlist.strings in Resources */,
 				7126889218C5D44F0058AB0E /* Main.storyboard in Resources */,
+				7162B65F18CF775B00327041 /* PolarAreaChart.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
